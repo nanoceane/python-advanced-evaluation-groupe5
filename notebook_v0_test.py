@@ -179,7 +179,7 @@ print("Hello world!")
 
     def test_to_starboard_text(self):
         ipynb = load_ipynb("samples/hello-world.ipynb")
-        with open("output.txt", "w") as f:
+        with open("output.txt", "w", encoding="utf-8") as f:
             f.write(to_starboard(ipynb))
         self.assertEqual(
             r"""# %% [markdown]
