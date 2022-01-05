@@ -50,7 +50,8 @@ def load_ipynb(filename):
          'nbformat': 4,
          'nbformat_minor': 5}
     """
-    pass
+    with open(filename,'rb') as file:
+        return json.loads(file.read())
 
 
 def save_ipynb(ipynb, filename):
@@ -73,7 +74,8 @@ def save_ipynb(ipynb, filename):
         True
 
     """
-    pass
+    with open(filename,'w') as file:
+        return json.dump(ipynb,file)
 
 
 def get_format_version(ipynb):
@@ -90,7 +92,9 @@ def get_format_version(ipynb):
         >>> get_format_version(ipynb)
         '4.5'
     """
-    pass
+    a=ipynb.get('nbformat')
+    b=ipynb.get('nbformat_minor')
+    print (f"{a}.{b}")
 
 
 def get_metadata(ipynb):
@@ -114,7 +118,7 @@ def get_metadata(ipynb):
                            'pygments_lexer': 'ipython3',
                            'version': '3.9.7'}}
     """
-    pass
+    return ipynb.get('metadata')
 
 
 def get_cells(ipynb):
@@ -148,7 +152,7 @@ def get_cells(ipynb):
           'metadata': {},
           'source': ['Goodbye! 👋']}]
     """
-    pass
+    return ipynb.get('cells')
 
 
 def to_percent(ipynb):
