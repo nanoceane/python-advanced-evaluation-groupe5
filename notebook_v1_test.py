@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-
 from notebook_v1 import *
 
 class Question9(unittest.TestCase):
@@ -64,19 +63,19 @@ class Question12(unittest.TestCase):
         self.assertEqual(
             {'cells': [{'cell_type': 'markdown',
                 'id': 'a9541506',
-                'medatada': {},
+                'metadata': {},
                 'source': ['Hello world!\n',
                            '============\n',
                            'Print `Hello world!`:']},
                {'cell_type': 'code',
                 'execution_count': 1,
                 'id': 'b777420a',
-                'medatada': {},
+                'metadata': {},
                 'outputs': [],
                 'source': ['print("Hello world!")']},
                {'cell_type': 'markdown',
                 'id': 'a23ab5ac',
-                'medatada': {},
+                'metadata': {},
                 'source': ['Goodbye! 👋']}],
             'metadata': {},
             'nbformat': 4,

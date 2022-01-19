@@ -94,7 +94,7 @@ def get_format_version(ipynb):
     """
     a=ipynb.get('nbformat')
     b=ipynb.get('nbformat_minor')
-    print (f"{a}.{b}")
+    return (f"{a}.{b}")
 
 
 def get_metadata(ipynb):
@@ -153,7 +153,7 @@ def get_cells(ipynb):
           'source': ['Goodbye! 👋']}]
     """
     return ipynb.get('cells')
-
+#%%
 
 def to_percent(ipynb):
     r"""
@@ -167,7 +167,7 @@ def to_percent(ipynb):
         # Hello world!
         # ============
         # Print `Hello world!`:
-        # %%
+        ## %%
         print("Hello world!")
         # %% [markdown]
         # Goodbye! 👋
@@ -179,8 +179,25 @@ def to_percent(ipynb):
         ...     with open(notebook_file.with_suffix(".py"), "w", encoding="utf-8") as output:
         ...         print(percent_code, file=output)
     """
-    pass
-
+    cells=get_cells(ipynb)
+    ch=""
+    for cell in cells:
+        if cell['cell_type']=='markdown':
+            ch+='# %% [markdown]\n'
+        else:
+            ch+="# %%\n"   
+        contenu=cell['source'] 
+        for line in contenu:
+            if cell['cell_type']=='markdown':
+                ch+="# "
+                ch+=line
+            else:
+                ch+=line
+        ch+='\n\n'        
+    return ch[:-1]   
+            
+        
+#%%
 
 def starboard_html(code):
     return f"""
@@ -203,7 +220,7 @@ def starboard_html(code):
 </html>
 """
 
-
+#%%
 def to_starboard(ipynb, html=False):
     r"""
     Convert a ipynb notebook (dict) to a Starboard notebook (str)
@@ -236,11 +253,32 @@ def to_starboard(ipynb, html=False):
         ...     with open(notebook_file.with_suffix(".html"), "w", encoding="utf-8") as output:
         ...         print(starboard_html, file=output)
     """
-    pass
+    cells=get_cells(ipynb)
+    ch=""
+    for cell in cells:
+        cell_type=cell['cell_type']
+        if cell_type=='code': 
+            cell_type='python'
+            ch+=f"# %% [{cell_type}]"
+        else:
+            ch+=f"# %% [{cell_type}]\n"    
+        contenu=cell['source'] 
+        for line in contenu:
+            if cell_type=='python':
+                ch+=f"\n{line}"
+            else:
+                ch+=line
+        ch+='\n'
+    if html: return starboard_html(ch[:-1])
+    else: return ch[:-1]
+     
+'# %% [markdown]\\nHello world!\\n============\\nPrint `Hello world!`:\\n# %% [python]\\nprint("Hello world!")\\n# %% [markdown]\\nGoodbye! 👋'        
+    
 
 
 # Outputs
 # ------------------------------------------------------------------------------
+#%%
 def clear_outputs(ipynb):
     r"""
     Remove the notebook cell outputs and resets the cells execution counts.
@@ -292,9 +330,13 @@ def clear_outputs(ipynb):
          'nbformat': 4,
          'nbformat_minor': 5}
     """
-    pass
+    cells=get_cells(ipynb)
+    for i in range(len(cells)):
+        cell=cells[i]
+        if cell.get('cell_type')=='code':
+            cell.update({'outputs':[],'execution_count':None})
 
-
+#%%
 def get_stream(ipynb, stdout=True, stderr=False):
     r"""
     Return the text written to the standard output and/or error stream.
@@ -310,7 +352,16 @@ def get_stream(ipynb, stdout=True, stderr=False):
         👋 Hello world! 🌍
         🔥 This is fine. 🔥 (https://gunshowcomic.com/648)
     """
-    pass
+    cells=get_cells(ipynb)
+    ch=""
+    for cell in cells:
+        dic=cell['outputs'][0]
+        if locals()[dic['name']]==True:
+            ch+=dic['text'][0]
+    return ch      
+
+#%%
+
 
 
 def get_exceptions(ipynb):
@@ -332,8 +383,19 @@ def get_exceptions(ipynb):
         TypeError("unsupported operand type(s) for +: 'int' and 'str'")
         Warning('🌧️  light rain')
     """
-    pass
+    cells=get_cells(ipynb)
+    l=[]
+    for cell in cells:
+        if cell['cell_type']=='code':
+            dic=cell['outputs'][0]
+            if dic['output_type']=='error':
+                liste=[dic['ename'],"('",dic['evalue'],"')"]
+                error=exec('"".join(liste)')
+                l.append(error)
+                
+    return l     
 
+#%%
 
 def get_images(ipynb):
     r"""
@@ -356,4 +418,25 @@ def get_images(ipynb):
                 ...,
                 [ 14,  13,  19]]], dtype=uint8)
     """
-    pass
+    import matplotlib.pyplot as plt
+    from matplotlib.cbook import get_sample_data
+    cells=get_cells(ipynb)
+    array=[]
+    for cell in cells:
+        for contenu in cell['source']:
+             if "get_sample_data" in contenu:
+                  a=contenu.index('(')
+                  b=contenu.index(')')
+                  name = contenu[(a+2):(b-1)]
+    with get_sample_data(name) as file:
+        image_array = plt.imread(file)
+        array += [image_array]
+    return array
+
+    
+
+    
+            
+
+
+# %%
